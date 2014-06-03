@@ -3553,6 +3553,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
             if (matches.length > 0) {
 
               scope.activeIdx = 0;
+              scope.item = {};
               scope.matches.length = 0;
 
               //transform labels
@@ -3644,7 +3645,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
           //it might happen that we don't have enough info to properly render input value
           //we need to check for this situation and simply return model value if we can't apply custom formatting
-          locals[parserResult.itemName] = modelValue;
+          locals[parserResult.itemName] = scope.item;
           candidateViewValue = parserResult.viewMapper(originalScope, locals);
           locals[parserResult.itemName] = undefined;
           emptyViewValue = parserResult.viewMapper(originalScope, locals);
@@ -3656,15 +3657,15 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       scope.select = function (activeIdx) {
         //called from within the $digest() cycle
         var locals = {};
-        var model, item;
+        var model;
 
-        locals[parserResult.itemName] = item = scope.matches[activeIdx].model;
+        locals[parserResult.itemName] = scope.item = scope.matches[activeIdx].model;
         model = parserResult.modelMapper(originalScope, locals);
         $setModelValue(originalScope, model);
         modelCtrl.$setValidity('editable', true);
 
         onSelectCallback(originalScope, {
-          $item: item,
+          $item: scope.item,
           $model: model,
           $label: parserResult.viewMapper(originalScope, locals)
         });
