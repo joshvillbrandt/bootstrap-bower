@@ -3730,7 +3730,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       $document.bind('click', dismissClickHandler);
 
       element.bind('focus', function (evt) {
-        if(minSearch === 0){
+        // user relatedTarget to prevent re-listing after selecting
+        if(evt.relatedTarget !== null && minSearch === 0){
           hasFocus = true;
           modelCtrl.$setViewValue('');
           getMatchesAsync('');
