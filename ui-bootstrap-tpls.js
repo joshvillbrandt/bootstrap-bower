@@ -3540,6 +3540,13 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         }
       });
 
+      // init item
+      // scope.item = {};
+      // console.log('modelCtrl', modelCtrl.$modelValue, $parse(attrs.ngModel))
+        // $q.when(parserResult.source(originalScope, locals)).then(function(matches) {
+        //   // look for something that matches the $modelValue
+        // }
+
       var getMatchesAsync = function(inputValue) {
 
         var locals = {$viewValue: inputValue};
@@ -3722,8 +3729,17 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
       $document.bind('click', dismissClickHandler);
 
+      element.bind('focus', function (evt) {
+        if(minSearch === 0){
+          hasFocus = true;
+          modelCtrl.$setViewValue('');
+          getMatchesAsync('');
+        }
+      });
+
       originalScope.$on('$destroy', function(){
         $document.unbind('click', dismissClickHandler);
+        $document.unbind('focus', dismissClickHandler);
       });
 
       var $popup = $compile(popUpEl)(scope);
