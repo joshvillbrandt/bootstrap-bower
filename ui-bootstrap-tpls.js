@@ -3729,18 +3729,22 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
       $document.bind('click', dismissClickHandler);
 
-      element.bind('focus', function (evt) {
+      var elementFocusHander = function (evt) {
         // user relatedTarget to prevent re-listing after selecting
-        if(evt.relatedTarget !== null && minSearch === 0){
+        // only pop-up automatically for empty values $setViewValue also sets the model value and we don't have the proper model value available in this scope...
+        var currentValue = element.val();
+        if(evt.relatedTarget !== null && minSearch === 0 && currentValue === '') {
           hasFocus = true;
-          modelCtrl.$setViewValue('');
-          getMatchesAsync('');
+          modelCtrl.$setViewValue(currentValue);
+          getMatchesAsync(currentValue);
         }
-      });
+      };
+
+      element.bind('focus', elementFocusHander);
 
       originalScope.$on('$destroy', function(){
         $document.unbind('click', dismissClickHandler);
-        $document.unbind('focus', dismissClickHandler);
+        element.unbind('focus', elementFocusHander);
       });
 
       var $popup = $compile(popUpEl)(scope);
