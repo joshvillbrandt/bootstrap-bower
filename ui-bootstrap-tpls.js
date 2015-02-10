@@ -3480,6 +3480,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
       var appendToBody =  attrs.typeaheadAppendToBody ? originalScope.$eval(attrs.typeaheadAppendToBody) : false;
 
+      var openOnFocus = originalScope.$eval(attrs.typeaheadOpenOnFocus) || false;
+
       //INTERNAL VARIABLES
 
       //model setter executed upon match selection
@@ -3602,13 +3604,10 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //Declare the timeout promise var outside the function scope so that stacked calls can be cancelled later
       var timeoutPromise;
 
-      //plug into $parsers pipeline to open a typeahead on view changes initiated from DOM
-      //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
-      modelCtrl.$parsers.unshift(function (inputValue) {
-
+      function parseInput(inputValue) {
         hasFocus = true;
 
-        if (inputValue && inputValue.length >= minSearch) {
+        if (typeof inputValue !== 'undefined' && inputValue.length >= minSearch) {
           if (waitTime > 0) {
             if (timeoutPromise) {
               $timeout.cancel(timeoutPromise);//cancel previous timeout
@@ -3636,7 +3635,11 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
             return undefined;
           }
         }
-      });
+      }
+
+      //plug into $parsers pipeline to open a typeahead on view changes initiated from DOM
+      //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
+      modelCtrl.$parsers.unshift(parseInput);
 
       modelCtrl.$formatters.push(function (modelValue) {
 
@@ -3712,6 +3715,12 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
           resetMatches();
           scope.$digest();
+        }
+      });
+
+      element.bind('focus', function (evt) {
+        if (openOnFocus) {
+          parseInput(evt.target.value);
         }
       });
 
